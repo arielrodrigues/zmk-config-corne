@@ -8,8 +8,10 @@
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
 
-/* ZMK Studio */
+/* ZMK Studio — skipped by keymap editor (no __DTS__ define) */
+#ifdef __DTS__
 #include "layout/corne.dtsi"
+#endif
 
 /* Global */
 #include "os/shared/times.dtsi"
@@ -85,11 +87,13 @@
     };
 };
 
+#ifdef __DTS__
 / {
     chosen {
         zmk,physical-layout = &default_layout;
     };
 };
+#endif
 
 / {
     combos {
