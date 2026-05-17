@@ -193,6 +193,11 @@ ZMK_SUBSCRIPTION(bongo_layer, zmk_layer_state_changed);
 lv_obj_t *zmk_display_status_screen(void) {
     lv_obj_t *screen = lv_obj_create(NULL);
 
+    /* Explicit black background — prevents uninitialized display memory from
+     * showing through on the 1-bit SSD1306. */
+    lv_obj_set_style_bg_color(screen, lv_color_black(), LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(screen, LV_OPA_COVER, LV_PART_MAIN);
+
     /* Layer name — top left */
     layer_label = lv_label_create(screen);
     lv_label_set_text(layer_label, "---");
