@@ -2,10 +2,12 @@ manifest:
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware
+    - name: ariel
+      url-base: https://github.com/arielrodrigues
   projects:
     - name: zmk
-      remote: zmkfirmware
-      revision: main
+      remote: ariel
+      revision: dcd221de5807ebdd5db4de5137fc67494e19d76f
       import: app/west.yml
   self:
     path: config
