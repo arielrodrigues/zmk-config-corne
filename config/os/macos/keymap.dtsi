@@ -147,7 +147,7 @@
             #define MSRD2  &mp_mSTG_down                // tap: ide panel bottom bar | alt: rectangle bottom down
             #define MSRD3  &mp_mSTG_downright           // tap: none | alt: rectangle bottom right
             #define MSRD4  &kp LC(DOWN)                 // tap: application window
-            #define MSRD5  &none                 
+            #define MSRD5  &bootloader
 
             #define MSLT2  &kp C_BRI_DN
             #define MSLT1  KEY_SPC

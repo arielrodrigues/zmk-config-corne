@@ -147,7 +147,7 @@
             #define ASRD2  &none
             #define ASRD3  &none
             #define ASRD4  &none
-            #define ASRD5  &none
+            #define ASRD5  &bootloader
 
 
             #define ASLT2  &kp C_BRI_DN
