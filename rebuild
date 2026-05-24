@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -e
+
+source ~/zmk-venv/bin/activate
+export ZEPHYR_SDK_INSTALL_DIR=~/zephyr-sdk-0.17.0
+export ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+export CMAKE_PREFIX_PATH=/Users/arielrodrigues/code/zmk-config-corne/zephyr/share/zephyr-package/cmake
+
+REPO="$(cd "$(dirname "$0")" && pwd)"
+
+echo "==> Building left half..."
+west build -s zmk/app -b nice_nano//zmk -d "$REPO/build/corne_left" --pristine \
+  -S studio-rpc-usb-uart \
+  -- -DSHIELD=corne_left -DZMK_CONFIG="$REPO/config" -DCONFIG_ZMK_STUDIO=y
+
+echo "==> Building right half..."
+west build -s zmk/app -b nice_nano//zmk -d "$REPO/build/corne_right" --pristine \
+  -- -DSHIELD=corne_right -DZMK_CONFIG="$REPO/config"
+
+echo "==> Building settings reset..."
+west build -s zmk/app -b nice_nano//zmk -d "$REPO/build/settings_reset" --pristine \
+  -- -DSHIELD=settings_reset
+
+echo ""
+echo "Done. UF2 files:"
+echo "  Left:    $REPO/build/corne_left/zephyr/zmk.uf2"
+echo "  Right:   $REPO/build/corne_right/zephyr/zmk.uf2"
+echo "  Reset:   $REPO/build/settings_reset/zephyr/zmk.uf2"

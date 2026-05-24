@@ -7,111 +7,116 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/ext_power.h>
+#include <dt-bindings/zmk/outputs.h>
 
-/* ZMK Studio */
 #include "layout/corne.dtsi"
 
-/* Global */
-#include "os/shared/times.dtsi"
-#include "os/shared/general.dtsi"
-#include "os/macos/layers.dtsi"
-#include "os/windows/layers.dtsi"
-#include "os/android/layers.dtsi"
-
-/* Keys */
-#include "os/shared/keys.dtsi"
-#include "os/macos/keys.dtsi"
-#include "os/windows/keys.dtsi"
-#include "os/android/keys.dtsi"
-
-/* Helpers */
-#include "helpers/macros.dtsi"
-#include "helpers/hold.dtsi"
-#include "helpers/morph.dtsi"
-
-/ {
-    macros {
-        #include "os/shared/macros/layers.dtsi"
-        #include "os/shared/macros/settings.dtsi"
-
-        #include "os/macos/macros/layers.dtsi"
-        #include "os/macos/macros/int.dtsi"
-        #include "os/macos/macros/dev.dtsi"
-
-        #include "os/windows/macros/layers.dtsi"
-        #include "os/windows/macros/int.dtsi"
-        #include "os/windows/macros/dev.dtsi"
-
-        #include "os/android/macros/layers.dtsi"
-        #include "os/android/macros/int.dtsi"
-        #include "os/android/macros/dev.dtsi"
-        #include "os/android/macros/stg.dtsi"
-    };
-};
-
-/ {
-    behaviors {
-        #include "os/shared/morph/shared.dtsi"
-        #include "os/shared/morph/num.dtsi"
-        #include "os/shared/hold/shared.dtsi"
-
-        #include "os/macos/morph/layers.dtsi"
-        #include "os/macos/morph/base.dtsi"
-        #include "os/macos/morph/int.dtsi"
-        #include "os/macos/morph/actions.dtsi"
-        #include "os/macos/morph/dev.dtsi"
-        #include "os/macos/morph/settings.dtsi"
-        #include "os/macos/hold/layers.dtsi"
-        #include "os/macos/hold/base.dtsi"
-        #include "os/macos/hold/dev.dtsi"
-        #include "os/macos/hold/settings.dtsi"
-
-        #include "os/windows/morph/layers.dtsi"
-        #include "os/windows/morph/base.dtsi"
-        #include "os/windows/morph/int.dtsi"
-        #include "os/windows/morph/actions.dtsi"
-        #include "os/windows/morph/dev.dtsi"
-        #include "os/windows/morph/settings.dtsi"
-        #include "os/windows/hold/layers.dtsi"
-        #include "os/windows/hold/base.dtsi"
-        #include "os/windows/hold/dev.dtsi"
-
-        #include "os/android/morph/layers.dtsi"
-        #include "os/android/morph/base.dtsi"
-        #include "os/android/morph/int.dtsi"
-        #include "os/android/morph/dev.dtsi"
-        #include "os/android/hold/layers.dtsi"
-        #include "os/android/hold/base.dtsi"
-    };
-};
+#define BASE  0
+#define NAV_L 1
+#define SYM_L 2
+#define ADJ_L 3
 
 / {
     chosen {
         zmk,physical-layout = &default_layout;
     };
-};
 
-/ {
     combos {
         compatible = "zmk,combos";
 
-        #include "os/macos/combos/base.dtsi"
-        #include "os/macos/combos/help.dtsi"
-        #include "os/macos/combos/settings.dtsi"
+        /* NAV + SYM simultaneously → ZMK Studio unlock */
+        combo_studio_unlock {
+            timeout-ms = <50>;
+            key-positions = <38 39>;
+            bindings = <&studio_unlock>;
+            layers = <BASE>;
+        };
 
-        #include "os/windows/combos/base.dtsi"
-        #include "os/windows/combos/help.dtsi"
+        /* Top-left + Bottom-left outer keys → bootloader (left half, any layer) */
+        combo_bootloader_left {
+            timeout-ms = <50>;
+            key-positions = <0 24>;
+            bindings = <&bootloader>;
+        };
 
-        #include "os/android/combos/base.dtsi"
+        /* Top-right + Bottom-right outer keys → bootloader (right half, any layer) */
+        combo_bootloader_right {
+            timeout-ms = <50>;
+            key-positions = <11 35>;
+            bindings = <&bootloader>;
+        };
     };
-};
 
-/ {
     keymap {
         compatible = "zmk,keymap";
 
-        #include "os/macos/keymap.dtsi"
-        #include "os/windows/keymap.dtsi"
-        #include "os/android/keymap.dtsi"
+        default_layer {
+            /* QWERTY
+             * -----------------------------------------------------------------------
+             * |  ` |  Q |  W |  E |  R |  T |   |  Y |  U |  I |  O |  P | BSPC |
+             * | TAB|  A |  S |  D |  F |  G |   |  H |  J |  K |  L |  ; |  ENT |
+             * |CTRL|  Z |  X |  C |  V |  B |   |  N |  M |  , |  . |  / |   '  |
+             *               | GUI| ALT| NAV|   | SYM| SPC|SHFT|
+             */
+            display-name = "Base";
+            bindings = <
+&kp GRAVE  &kp Q  &kp W  &kp E     &kp R     &kp T       &kp Y      &kp U      &kp I      &kp O    &kp P     &kp BSPC
+&kp TAB    &kp A  &kp S  &kp D     &kp F     &kp G       &kp H      &kp J      &kp K      &kp L    &kp SEMI  &kp ENTER
+&kp LCTRL  &kp Z  &kp X  &kp C     &kp V     &kp B       &kp N      &kp M      &kp COMMA  &kp DOT  &kp FSLH  &kp SQT
+                          &kp LGUI  &kp LALT  &mo NAV_L   &mo SYM_L  &kp SPACE  &kp LSHFT
+            >;
+        };
+
+        nav_layer {
+            /* NAV
+             * -----------------------------------------------------------------------
+             * | ESC|  1 |  2 |  3 |  4 |  5 |   |  6 |  7 |  8 |  9 |  0 | BSPC |
+             * |CAPS| GUI| ALT|CTRL|SHFT|    |   |LEFT|DOWN| UP |RGHT|    |      |
+             * |    |  F1|  F2|  F3|  F4|  F5|   |  F6|  F7|  F8|  F9| F10|RCTRL |
+             *               |    |    |    |   | ADJ|    |    |
+             */
+            display-name = "Nav";
+            bindings = <
+&kp ESC       &kp N1    &kp N2    &kp N3     &kp N4     &kp N5    &kp N6     &kp N7    &kp N8  &kp N9     &kp N0   &trans
+&kp CAPSLOCK  &kp LGUI  &kp LALT  &kp LCTRL  &kp LSHFT  &none     &kp LEFT   &kp DOWN  &kp UP  &kp RIGHT  &none    &none
+&trans        &kp F1    &kp F2    &kp F3     &kp F4     &kp F5    &kp F6     &kp F7    &kp F8  &kp F9     &kp F10  &kp RCTRL
+                                  &trans     &trans     &trans    &mo ADJ_L  &trans    &trans
+            >;
+        };
+
+        sym_layer {
+            /* SYM
+             * -----------------------------------------------------------------------
+             * | INS|  ! |  @ |  # |  $ |  % |   |  ^ |  & |  * |  ( |  ) |  DEL |
+             * |    |  \ |  - |  = |  [ |  ] |   |LEFT|DOWN| UP |RGHT|BDN | BUP  |
+             * |CTRL|  | |  _ |  + |  { |  } |   |PRV | PP |NXT |MUTE| V- |  V+  |
+             *               |    |    | ADJ|   |    |    |    |
+             */
+            display-name = "Sym";
+            bindings = <
+&kp INS    &kp EXCL  &kp AT     &kp HASH  &kp DLLR  &kp PRCNT     &kp CARET       &kp AMPS          &kp ASTRK  &kp LPAR   &kp RPAR              &kp DEL
+&trans     &kp BSLH  &kp MINUS  &kp EQUAL &kp LBKT  &kp RBKT      &kp LEFT        &kp DOWN          &kp UP     &kp RIGHT  &kp C_BRIGHTNESS_DEC  &kp C_BRIGHTNESS_INC
+&kp LCTRL  &kp PIPE  &kp UNDER  &kp PLUS  &kp LBRC  &kp RBRC      &kp C_PREVIOUS  &kp C_PLAY_PAUSE  &kp C_NEXT &kp K_MUTE &kp C_VOL_DN          &kp C_VOL_UP
+                                &trans    &trans    &mo ADJ_L     &trans          &trans            &trans
+            >;
+        };
+
+        adj_layer {
+            /* ADJ
+             * -----------------------------------------------------------------------
+             * |    |    |    |    |    |BTCA|   |    | F11| F12|PRNT|EP- |EP+ |
+             * | RST| BT0| BT1| BT2| BT3| BT4|   |    |    |    |    |    | RST |
+             * |    |    |    |    |    |BTCL|   |    |    |USB |BLE |    |BOOT |
+             *               |    |    |    |   |    |    |    |
+             */
+            display-name = "Adj";
+            bindings = <
+&none       &none         &none         &none         &none         &bt BT_CLR_ALL    &none   &kp F11  &kp F12       &kp PRINTSCREEN  &ext_power EP_OFF  &ext_power EP_ON
+&sys_reset  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4      &none   &none    &none         &none            &none              &sys_reset
+&none       &none         &none         &none         &none         &bt BT_CLR        &none   &none    &out OUT_USB  &out OUT_BLE     &none              &bootloader
+                                        &trans        &trans        &trans            &trans  &trans   &trans
+            >;
+        };
     };
 };
