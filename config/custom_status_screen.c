@@ -30,6 +30,8 @@
 #include <zmk/battery.h>
 #include <zmk/hid.h>
 #include <zmk/ble.h>
+#include <zmk/usb.h>
+#include <zmk/events/usb_conn_state_changed.h>
 #include <dt-bindings/zmk/modifiers.h>
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
@@ -64,6 +66,9 @@ static uint8_t          current_bt_profile = 0;
 static uint8_t          current_layer_idx  = 0;
 static const char      *current_batt_sym   = LV_SYMBOL_BATTERY_EMPTY;
 static zmk_mod_flags_t  current_mods       = 0;
+#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+static bool             current_usb_powered = false;
+#endif
 
 #define LOVE_TIMEOUT_MS 20000
 #define FAST_WPM        40
@@ -83,9 +88,15 @@ static const char *layer_symbol(uint8_t idx) {
 
 static void refresh_info_label(void) {
     char buf[32];
-    snprintf(buf, sizeof(buf), "%s %u  %s",
+#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+    const char *charge_prefix = current_usb_powered ? LV_SYMBOL_CHARGE " " : "";
+#else
+    const char *charge_prefix = "";
+#endif
+    snprintf(buf, sizeof(buf), "%s %u  %s%s",
              layer_symbol(current_layer_idx),
              current_bt_profile + 1,
+             charge_prefix,
              current_batt_sym);
     lv_label_set_text(info_label, buf);
 }
@@ -210,6 +221,26 @@ ZMK_DISPLAY_WIDGET_LISTENER(sc_batt, struct sc_batt_state, sc_batt_update_cb, sc
 ZMK_SUBSCRIPTION(sc_batt, zmk_battery_state_changed);
 
 /* ----------------------------------------------------------------
+ * USB power listener — drives the charging bolt next to the battery.
+ * Reflects the LEFT half only; the peripheral's USB state isn't observable here.
+ * ---------------------------------------------------------------- */
+#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+struct sc_usb_state { bool powered; };
+
+static struct sc_usb_state sc_usb_get_state(const zmk_event_t *eh) {
+    return (struct sc_usb_state){ .powered = zmk_usb_is_powered() };
+}
+
+static void sc_usb_update_cb(struct sc_usb_state s) {
+    current_usb_powered = s.powered;
+    refresh_info_label();
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(sc_usb, struct sc_usb_state, sc_usb_update_cb, sc_usb_get_state)
+ZMK_SUBSCRIPTION(sc_usb, zmk_usb_conn_state_changed);
+#endif
+
+/* ----------------------------------------------------------------
  * Modifiers listener
  * ---------------------------------------------------------------- */
 struct sc_mods_state { zmk_mod_flags_t mods; };
@@ -288,6 +319,10 @@ lv_obj_t *zmk_display_status_screen(void) {
     sc_layer_init();
     sc_batt_init();
     sc_mods_init();
+#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+    current_usb_powered = zmk_usb_is_powered();
+    sc_usb_init();
+#endif
 #if IS_ENABLED(CONFIG_ZMK_BLE)
     current_bt_profile = (uint8_t)zmk_ble_active_profile_index();
     sc_bt_init();
