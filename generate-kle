@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+"""Generate a keyboard-layout-editor.com config from the current ZMK keymap.
+
+Reads config/corne.keymap, parses the BASE/NAV/SYM layer bindings, and emits
+a 42-key KLE config where each cell shows:
+  - top-left  = NAV layer mapping (left thumb held)
+  - top-right = SYM layer mapping (right thumb held)
+  - center    = Base layer key
+
+Usage:  ./generate-kle   (or: ./generate-kle | pbcopy)
+Paste the output into the Raw Data tab at https://www.keyboard-layout-editor.com
+"""
+
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+KEYMAP_FILE = ROOT / "config" / "corne.keymap"
+
+KEYCODE_LABELS = {
+    **{c: c for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+    **{f"N{i}": str(i) for i in range(10)},
+    **{f"F{i}": f"F{i}" for i in range(1, 25)},
+    "LEFT": "←", "DOWN": "↓", "UP": "↑", "RIGHT": "→",
+    "LSHFT": "Shift", "RSHFT": "Shift",
+    "LCTRL": "Ctrl", "RCTRL": "RCtrl",
+    "LALT": "Alt", "RALT": "RAlt",
+    "LGUI": "Super", "RGUI": "RSuper",
+    "EXCL": "!", "AT": "@", "HASH": "#", "DLLR": "$", "PRCNT": "%",
+    "CARET": "^", "AMPS": "&", "ASTRK": "*",
+    "LPAR": "(", "RPAR": ")",
+    "MINUS": "-", "UNDER": "_",
+    "PLUS": "+", "EQUAL": "=",
+    "LBKT": "[", "RBKT": "]",
+    "LBRC": "{", "RBRC": "}",
+    "PIPE": "|",
+    "BSLH": "\\\\",       # KLE renders \\ as a single \
+    "GRAVE": "`", "TILDE": "~",
+    "SQT": "'",
+    "DQT": "\\\"",        # KLE renders \" as a single "
+    "SEMI": ";", "COLON": ":",
+    "COMMA": ",", "DOT": ".",
+    "FSLH": "/", "QMARK": "?",
+    "LT": "<", "GT": ">",
+    "ENTER": "Enter", "ENT": "Enter", "RET": "Enter",
+    "TAB": "Tab", "ESC": "Esc",
+    "INS": "Ins", "DEL": "Del",
+    "BSPC": "Bksp", "BACKSPACE": "Bksp",
+    "SPACE": "Space",
+    "CAPSLOCK": "Caps", "CAPS": "Caps",
+    "PRINTSCREEN": "PrtSc", "PSCRN": "PrtSc",
+    "C_PREVIOUS": "⏮", "C_PREV": "⏮",
+    "C_PLAY_PAUSE": "⏯", "C_PP": "⏯",
+    "C_NEXT": "⏭",
+    "K_MUTE": "🔇", "C_MUTE": "🔇",
+    "C_VOL_DN": "🔉", "C_VOLUME_DOWN": "🔉",
+    "C_VOL_UP": "🔊", "C_VOLUME_UP": "🔊",
+    "C_BRIGHTNESS_DEC": "🔅", "C_BRI_DEC": "🔅",
+    "C_BRIGHTNESS_INC": "🔆", "C_BRI_INC": "🔆",
+}
+
+LAYER_LABELS = {"NAV_L": "NAV", "SYM_L": "SYM", "ADJ_L": "ADJ", "BASE": "Base"}
+
+TRANS = object()
+NONE = object()
+
+
+def strip_comments(s):
+    s = re.sub(r"/\*.*?\*/", " ", s, flags=re.DOTALL)
+    s = re.sub(r"//[^\n]*", " ", s)
+    return s
+
+
+def extract_layer_bindings(content, layer_name):
+    pattern = rf"{layer_name}\s*\{{[^}}]*?bindings\s*=\s*<(.*?)>"
+    m = re.search(pattern, content, re.DOTALL)
+    if not m:
+        raise ValueError(f"could not find {layer_name} in keymap")
+    return m.group(1)
+
+
+def parse_bindings(raw):
+    tokens = raw.split()
+    out = []
+    i = 0
+    while i < len(tokens):
+        if not tokens[i].startswith("&"):
+            i += 1
+            continue
+        behavior = tokens[i]
+        i += 1
+        args = []
+        while i < len(tokens) and not tokens[i].startswith("&"):
+            args.append(tokens[i])
+            i += 1
+        out.append((behavior, args))
+    return out
+
+
+def label_for(behavior, args):
+    if behavior == "&trans":
+        return TRANS
+    if behavior == "&none":
+        return NONE
+    if behavior == "&kp" and args:
+        return KEYCODE_LABELS.get(args[0], args[0])
+    if behavior == "&mo" and args:
+        return LAYER_LABELS.get(args[0], f"mo {args[0]}")
+    if behavior == "&bt" and args:
+        if args[0] == "BT_SEL" and len(args) > 1:
+            return f"BT{args[1]}"
+        if args[0] == "BT_CLR":
+            return "BT⌫"
+        if args[0] == "BT_CLR_ALL":
+            return "BT⌫A"
+    if behavior == "&out" and args:
+        if args[0] == "OUT_USB":
+            return "USB"
+        if args[0] == "OUT_BLE":
+            return "BLE"
+    if behavior == "&ext_power" and args:
+        if args[0] == "EP_OFF":
+            return "EP-"
+        if args[0] == "EP_ON":
+            return "EP+"
+        if args[0] == "EP_TOG":
+            return "EP⇄"
+    if behavior == "&sys_reset":
+        return "Reset"
+    if behavior == "&bootloader":
+        return "Boot"
+    if behavior == "&studio_unlock":
+        return "Studio"
+    return f"{behavior[1:]} {' '.join(args)}".strip()
+
+
+def to_str(lbl):
+    return "" if lbl is TRANS or lbl is NONE else lbl
+
+
+def build_kle_label(nav, sym, base):
+    return f"{to_str(nav)}\\n\\n{to_str(sym)}\\n\\n\\n\\n\\n\\n\\n{to_str(base)}"
+
+
+def render_row(labels, first_props=None, gap_after=None):
+    parts = []
+    for i, lbl in enumerate(labels):
+        if i == 0 and first_props:
+            parts.append(f'{{{first_props}}},"{lbl}"')
+        elif i == gap_after:
+            parts.append(f'{{x:0.5}},"{lbl}"')
+        else:
+            parts.append(f'"{lbl}"')
+    return "[" + ",".join(parts) + "]"
+
+
+def main():
+    content = strip_comments(KEYMAP_FILE.read_text())
+    layers = {}
+    for name in ("default_layer", "nav_layer", "sym_layer"):
+        bindings = parse_bindings(extract_layer_bindings(content, name))
+        if len(bindings) != 42:
+            print(f"warning: {name} has {len(bindings)} bindings (expected 42)",
+                  file=sys.stderr)
+        layers[name] = [label_for(b, a) for b, a in bindings]
+
+    base, nav, sym = layers["default_layer"], layers["nav_layer"], layers["sym_layer"]
+    cells = [build_kle_label(nav[i], sym[i], base[i]) for i in range(42)]
+
+    meta = (
+        '{notes:"Paste at https://www.keyboard-layout-editor.com/ — '
+        'generated by ./generate-kle from config/corne.keymap"}'
+    )
+    rows = [
+        meta,
+        render_row(cells[0:12],  first_props="a:7", gap_after=6),
+        render_row(cells[12:24],                    gap_after=6),
+        render_row(cells[24:36],                    gap_after=6),
+        render_row(cells[36:42], first_props="x:3", gap_after=3),
+    ]
+    print(",\n".join(rows))
+
+
+if __name__ == "__main__":
+    main()
