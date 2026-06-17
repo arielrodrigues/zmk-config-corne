@@ -4,6 +4,7 @@ import type {
   DocContent,
   DocSummary,
   Keymap,
+  KeymapEdit,
   OLEDConstants,
   OLEDPayload,
   RGBConfig,
@@ -48,4 +49,7 @@ export const api = {
   saveOLED: (c: OLEDConstants) => sendJson<OLEDPayload>('/api/oled', 'PUT', c),
   previewOLED: (c: OLEDConstants) => sendJson<ConfigDiff>('/api/oled/preview', 'POST', c),
   getKeymap: () => getJson<Keymap>('/api/keymap'),
+  saveKeymap: (edits: KeymapEdit[]) => sendJson<Keymap>('/api/keymap', 'PUT', { edits }),
+  previewKeymap: (edits: KeymapEdit[]) =>
+    sendJson<ConfigDiff>('/api/keymap/preview', 'POST', { edits }),
 };

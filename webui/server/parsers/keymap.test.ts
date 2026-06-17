@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { REPO_ROOT } from '../repoRoot.js';
-import { parseKeymap, tokenizeBindings } from './keymap.js';
+import { editKeymap, parseKeymap, tokenizeBindings } from './keymap.js';
 
 const REAL_KEYMAP = path.join(REPO_ROOT, 'config', 'corne.keymap');
 
@@ -96,5 +96,69 @@ describe('parseKeymap on the real corne.keymap', () => {
     // in the layout; in the bindings array it's the first of the six thumb bindings).
     const thumbs = nav.bindings.slice(36, 42);
     expect(thumbs.find((b) => b.behavior === '&mo' && b.args[0] === 'ADJ_L')).toBeTruthy();
+  });
+});
+
+describe('editKeymap (surgical edits)', () => {
+  const text = fs.readFileSync(REAL_KEYMAP, 'utf8');
+
+  it('is a no-op when given no edits', () => {
+    expect(editKeymap(text, [])).toBe(text);
+  });
+
+  it('round-trips byte-identical when replacing a binding with itself', () => {
+    const before = parseKeymap(text);
+    const sample = before.layers[0].bindings[1]; // &kp Q
+    const out = editKeymap(text, [{ layer: 'default_layer', position: 1, newBinding: sample.raw }]);
+    expect(out).toBe(text);
+  });
+
+  it('replaces a single binding, leaving everything else untouched', () => {
+    const out = editKeymap(text, [
+      { layer: 'default_layer', position: 1, newBinding: '&kp Z' },
+    ]);
+    // The result parses, position 1 is &kp Z, and nothing else moved.
+    const after = parseKeymap(out);
+    expect(after.layers[0].bindings[1]).toMatchObject({ behavior: '&kp', args: ['Z'] });
+    // Every other binding on the Base layer matches the original.
+    const before = parseKeymap(text);
+    for (let i = 0; i < 42; i++) {
+      if (i === 1) continue;
+      expect(after.layers[0].bindings[i].raw).toBe(before.layers[0].bindings[i].raw);
+    }
+    // Other layers untouched too.
+    for (let l = 1; l < 4; l++) {
+      expect(after.layers[l].bindings).toEqual(before.layers[l].bindings);
+    }
+  });
+
+  it('replaces an Adj-layer RGB binding', () => {
+    const out = editKeymap(text, [
+      { layer: 'adj_layer', position: 19, newBinding: '&rgb_ug RGB_HUI' },
+    ]);
+    const after = parseKeymap(out);
+    expect(after.layers[3].bindings[19]).toMatchObject({
+      behavior: '&rgb_ug',
+      args: ['RGB_HUI'],
+    });
+  });
+
+  it('applies multiple edits in one pass', () => {
+    const out = editKeymap(text, [
+      { layer: 'default_layer', position: 0, newBinding: '&kp ESC' },
+      { layer: 'default_layer', position: 11, newBinding: '&kp DEL' },
+    ]);
+    const after = parseKeymap(out);
+    expect(after.layers[0].bindings[0]).toMatchObject({ behavior: '&kp', args: ['ESC'] });
+    expect(after.layers[0].bindings[11]).toMatchObject({ behavior: '&kp', args: ['DEL'] });
+  });
+
+  it('rejects unknown layers and out-of-range positions', () => {
+    expect(() =>
+      editKeymap(text, [{ layer: 'nope_layer', position: 0, newBinding: '&kp A' }]),
+    ).toThrow(/not found/);
+    expect(() =>
+      editKeymap(text, [{ layer: 'default_layer', position: 99, newBinding: '&kp A' }]),
+    ).toThrow(/Position 99/);
   });
 });

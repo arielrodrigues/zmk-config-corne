@@ -1170,7 +1170,7 @@ Update this section as phases land. The next agent reads here first to know what
 | 3 — OLED Editor | Done | (this commit) | OLED parser with C-string codec, byte-identical round-trip, anchored splice (preserves source spacing for VAMP_* lines). /api/oled GET/PUT/preview routes. OLEDEditor with love-text/timeout/WPM fields and live love-message preview. Vampire frames pass through the round-trip but are edited in Phase 4. 20/20 tests green; live smoke OK. |
 | 4 — Vampire Frame Editor | Done | (this commit) | VampireFrameEditor with 4 tabs (Idle/Left/Right/Fast), monospace textarea, OLED preview, width warnings for lines > 7 chars, per-tab reset. Reuses /api/oled. Live smoke: frame edit round-trips through PUT and the source `[]  =` spacing is preserved. |
 | 5a — Keymap Viewer | Done | (this commit) | Devicetree-aware keymap parser (10 tests) with #define substitution for combo `layers = <BASE>` etc. /api/keymap GET. KeymapViewer renders 42-key SVG with column stagger, layer tabs, combo overlays (hover to highlight), per-key 4-layer map. Labels module + corneLayout. `docs/layers.md` and `docs/combos.md`. 30/30 tests; live smoke OK. |
-| 5b — Keymap Editor | Not started | | |
+| 5b — Keymap Editor | Done | (this commit) | Surgical splice (preserves byte-positions via comment→whitespace stripping). /api/keymap PUT + preview. KeymapViewer extended with edit-mode toggle, click-to-edit, pending-edit accumulator, save→diff→PUT. BindingPicker with 13 categorized groups + filter + raw-input fallback. `docs/studio.md`, layers.md refreshed. 6 new editor tests; 36/36 total green; live smoke confirmed surgical edit + restore byte-identical. |
 | 5c — Combo Editor | Deferred | | Out of initial scope |
 | 6 — Polish + troubleshooting docs | Not started | | |
 

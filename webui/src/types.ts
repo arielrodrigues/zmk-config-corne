@@ -76,3 +76,9 @@ export type Keymap = {
   combos: Combo[];
   raw: string;
 };
+
+export type KeymapEdit = {
+  layer: string;
+  position: number;
+  newBinding: string;
+};

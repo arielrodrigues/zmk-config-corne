@@ -59,6 +59,11 @@ That's the power of layers — the same physical key serves four different funct
 
 ## Want to change a binding?
 
-For now, edit `config/corne.keymap` by hand, or use **ZMK Studio** for fast live edits (see [Studio vs this app](/docs/studio) once that doc is added). A click-to-edit binding picker is coming in Phase 5b.
+Two ways:
 
-> **Why ZMK Studio for keymaps?** Devicetree (the file format `corne.keymap` uses) is hand-edited and dense with comments and custom blocks. Round-tripping it through a UI risks losing those. Studio talks directly to the keyboard's firmware to apply keymap changes without ever touching the source file.
+- **In this app:** open the [Keymap](/keymap) page, click **Edit mode**, click any key, and pick a new binding. Changes accumulate; **Save** opens a diff preview before writing. After saving, run a Rebuild + flash to apply.
+- **In [ZMK Studio](/docs/studio):** edit live over USB without a rebuild. Fast for trying things; doesn't persist to `corne.keymap` (see the studio doc).
+
+Both tools have trade-offs. See [ZMK Studio vs this app](/docs/studio) for when to use which.
+
+> **Under the hood:** this app makes *surgical* edits — it finds the exact characters representing one binding in the source file and splices in a replacement. Comments, formatting, combos, and any custom devicetree stay byte-identical. The viewer's binding picker is intentionally simple; for tap-dances, hold-tap behaviors, or anything exotic, edit `corne.keymap` by hand or use Studio.
