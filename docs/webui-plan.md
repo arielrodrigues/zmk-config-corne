@@ -1164,7 +1164,7 @@ Update this section as phases land. The next agent reads here first to know what
 
 | Phase | Status | Commit | Notes |
 |---|---|---|---|
-| 0 — Scaffold + docs scaffold | Not started | | |
+| 0 — Scaffold + docs scaffold | Done | (this commit) | Vite + Express + TS scaffold; docs API + Markdown renderer; `getting-started.md`, `anatomy.md`. Typecheck/lint/tests/manual all green. |
 | 1 — BuildPanel + scripts | Not started | | |
 | 2 — RGB Editor | Not started | | |
 | 3 — OLED Editor | Not started | | |
