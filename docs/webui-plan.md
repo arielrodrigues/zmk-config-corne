@@ -1166,7 +1166,7 @@ Update this section as phases land. The next agent reads here first to know what
 |---|---|---|---|
 | 0 — Scaffold + docs scaffold | Done | (this commit) | Vite + Express + TS scaffold; docs API + Markdown renderer; `getting-started.md`, `anatomy.md`. Typecheck/lint/tests/manual all green. |
 | 1 — BuildPanel + scripts | Done | (this commit) | SSE runner + `/api/rebuild`, `/api/generate-kle`, `/api/artifacts`. BuildPanel renders streaming logs, cancel button, copy-to-clipboard for KLE, artifact paths after rebuild. Manual smoke against real `./generate-kle` passed; 4 tests green. |
-| 2 — RGB Editor | Not started | | |
+| 2 — RGB Editor | Done | (this commit) | Round-trip-safe Kconfig parser (7 tests), /api/config GET/PUT/preview with atomic writes + validation, RGBEditor UI with HSV swatch + sliders/toggles, DiffPreview modal with LCS-based diff, InfoTooltip + help.ts, `docs/rgb.md`. End-to-end smoke: read/preview/write/restore byte-identical, validation rejects bad input. |
 | 3 — OLED Editor | Not started | | |
 | 4 — Vampire Frame Editor | Not started | | |
 | 5a — Keymap Viewer | Not started | | |

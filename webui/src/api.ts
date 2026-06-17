@@ -1,4 +1,4 @@
-import type { DocContent, DocSummary } from './types';
+import type { ConfigDiff, ConfigPayload, DocContent, DocSummary, RGBConfig } from './types';
 
 async function getJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
@@ -9,7 +9,30 @@ async function getJson<T>(url: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+async function sendJson<T>(url: string, method: 'PUT' | 'POST', body: unknown): Promise<T> {
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    let msg = text;
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed?.error?.message) msg = parsed.error.message;
+    } catch {
+      // fall through with raw text
+    }
+    throw new Error(msg);
+  }
+  return res.json() as Promise<T>;
+}
+
 export const api = {
   listDocs: () => getJson<{ items: DocSummary[] }>('/api/docs'),
   getDoc: (slug: string) => getJson<DocContent>(`/api/docs/${encodeURIComponent(slug)}`),
+  getConfig: () => getJson<ConfigPayload>('/api/config'),
+  saveConfig: (rgb: RGBConfig) => sendJson<ConfigPayload>('/api/config', 'PUT', { rgb }),
+  previewConfig: (rgb: RGBConfig) => sendJson<ConfigDiff>('/api/config/preview', 'POST', { rgb }),
 };
