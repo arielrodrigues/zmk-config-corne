@@ -8,6 +8,7 @@
     "dev:frontend": "vite",
     "dev:backend": "tsx watch server/index.ts",
     "build": "tsc --noEmit && vite build",
+    "start": "npm run build && tsx server/index.ts",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
     "test": "vitest run",

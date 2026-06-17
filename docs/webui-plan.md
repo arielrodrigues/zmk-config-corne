@@ -1172,7 +1172,7 @@ Update this section as phases land. The next agent reads here first to know what
 | 5a — Keymap Viewer | Done | (this commit) | Devicetree-aware keymap parser (10 tests) with #define substitution for combo `layers = <BASE>` etc. /api/keymap GET. KeymapViewer renders 42-key SVG with column stagger, layer tabs, combo overlays (hover to highlight), per-key 4-layer map. Labels module + corneLayout. `docs/layers.md` and `docs/combos.md`. 30/30 tests; live smoke OK. |
 | 5b — Keymap Editor | Done | (this commit) | Surgical splice (preserves byte-positions via comment→whitespace stripping). /api/keymap PUT + preview. KeymapViewer extended with edit-mode toggle, click-to-edit, pending-edit accumulator, save→diff→PUT. BindingPicker with 13 categorized groups + filter + raw-input fallback. `docs/studio.md`, layers.md refreshed. 6 new editor tests; 36/36 total green; live smoke confirmed surgical edit + restore byte-identical. |
 | 5c — Combo Editor | Deferred | | Out of initial scope |
-| 6 — Polish + troubleshooting docs | Not started | | |
+| 6 — Polish + troubleshooting docs | Done | (this commit) | Comprehensive `docs/troubleshooting.md` (keyboard / OLED / LEDs / build / Studio / app sections). `npm run start` builds and runs single-port production mode. Backend opportunistically serves `webui/dist` with SPA fallback. README updated. Cmd+S shortcut deferred — not blocking. |
 
 ### How to update
 

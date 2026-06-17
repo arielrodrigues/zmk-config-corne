@@ -21,6 +21,18 @@ app.use('/api/oled', oledRouter);
 app.use('/api/keymap', keymapRouter);
 app.use('/api', buildRouter);
 
+// In production: serve the built frontend from webui/dist (created by
+// `npm run build`). In dev, Vite proxies /api to us; the frontend itself is
+// served from Vite on port 5173.
+const DIST_DIR = path.join(REPO_ROOT, 'webui', 'dist');
+if (fs.existsSync(path.join(DIST_DIR, 'index.html'))) {
+  app.use(express.static(DIST_DIR));
+  app.get(/^\/(?!api\/).*/, (_req, res) => {
+    res.sendFile(path.join(DIST_DIR, 'index.html'));
+  });
+  console.log(`[backend] serving production frontend from ${DIST_DIR}`);
+}
+
 const PORT = 5174;
 
 const sanityFile = path.join(REPO_ROOT, 'config', 'corne.keymap');
