@@ -47,11 +47,21 @@ The vampire has three poses:
 
 Default threshold is 40 WPM. Lower it (e.g. 25) if you'd like to see the fast pose more often; raise it (e.g. 60) for the opposite.
 
-## What this editor does **not** control (yet)
+## What this editor does **not** control
 
-- **The vampire ASCII art itself.** Edit it in the Vampire Frames editor (Phase 4 — coming).
+- **The vampire ASCII art itself.** Edit it in the [Vampire Frames](/vampire) editor.
 - **Layer icons.** Defined in `custom_status_screen.c` (`layer_symbol()` function). Edit by hand for now.
 - **Fonts and layout.** Same — by hand.
+
+## Vampire frames in a nutshell
+
+Four ASCII-art frames (7 columns × 4 rows each) make up the vampire animation on the right side of the OLED:
+
+- **Idle** — what you see when you're not typing.
+- **Cape left / Cape right** — alternate frames while you're typing under the fast-WPM threshold; they make the cape flap.
+- **Fast** — replaces the cape frames once you cross the threshold.
+
+Edit them in the [Vampire Frames](/vampire) editor. Each frame must be monospace and exactly 7 columns wide for proper alignment on the OLED.
 
 ## Behind the scenes: a few quirks
 
