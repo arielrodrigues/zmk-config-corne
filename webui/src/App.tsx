@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { DocsViewer } from './components/DocsViewer';
 import { Placeholder } from './components/Placeholder';
+import { BuildPanel } from './components/BuildPanel';
 
 export function App() {
   return (
@@ -17,7 +18,7 @@ export function App() {
             element={<Placeholder title="Vampire Frame Editor — coming in Phase 4" />}
           />
           <Route path="keymap" element={<Placeholder title="Keymap Viewer — coming in Phase 5" />} />
-          <Route path="build" element={<Placeholder title="Build Panel — coming in Phase 1" />} />
+          <Route path="build" element={<BuildPanel />} />
           <Route
             path="*"
             element={<div className="placeholder">Not found</div>}

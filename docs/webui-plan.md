@@ -1165,7 +1165,7 @@ Update this section as phases land. The next agent reads here first to know what
 | Phase | Status | Commit | Notes |
 |---|---|---|---|
 | 0 — Scaffold + docs scaffold | Done | (this commit) | Vite + Express + TS scaffold; docs API + Markdown renderer; `getting-started.md`, `anatomy.md`. Typecheck/lint/tests/manual all green. |
-| 1 — BuildPanel + scripts | Not started | | |
+| 1 — BuildPanel + scripts | Done | (this commit) | SSE runner + `/api/rebuild`, `/api/generate-kle`, `/api/artifacts`. BuildPanel renders streaming logs, cancel button, copy-to-clipboard for KLE, artifact paths after rebuild. Manual smoke against real `./generate-kle` passed; 4 tests green. |
 | 2 — RGB Editor | Not started | | |
 | 3 — OLED Editor | Not started | | |
 | 4 — Vampire Frame Editor | Not started | | |

@@ -15,6 +15,7 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'no-constant-condition': ['error', { checkLoops: false }],
   },
   ignorePatterns: ['dist', 'node_modules', '*.config.ts', '*.config.cjs'],
 };
