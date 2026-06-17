@@ -94,6 +94,39 @@ CONFIG_ZMK_RGB_UNDERGLOW_SPD_START=2
 
 RGB can also be changed live at runtime via the Adj layer keys without reflashing, but resets on power-off unless `*_START` defaults are updated.
 
+### Adj-layer RGB controls
+
+Runtime bindings live on the right home row of the Adj layer (`H`, `J`, `K`, `L`):
+
+| Key | Binding | Action |
+|---|---|---|
+| H | `&rgb_ug RGB_TOG` | Toggle LEDs on/off |
+| J | `&rgb_ug RGB_EFF` | Cycle effect (solid → breathe → spectrum → swirl) |
+| K | `&rgb_ug RGB_BRD` | Brightness − (default step = 10) |
+| L | `&rgb_ug RGB_BRI` | Brightness + |
+
+`RGB_TOG` etc. require `#include <dt-bindings/zmk/rgb.h>` in `corne.keymap` — without it, the devicetree parser reports `expected number or parenthesized expression`.
+
+The default brightness step is 10. Starting at `BRT_START=5` means one `BR−` press clamps to 0. Override with `CONFIG_ZMK_RGB_UNDERGLOW_BRT_STEP=<n>` for finer control.
+
+### Gotcha: RGB toggle kills the OLED unless decoupled
+
+The nice!nano v2 has a single `EXT_POWER` node (GPIO P0.13) that gates the 3.3V peripheral rail. **Both the WS2812 chain and the OLED share that rail** — there is no separate MOSFET for the LEDs on the Corne shield (`zmk/app/boards/shields/corne/boards/nice_nano_nrf52840_zmk.overlay`).
+
+By default, `CONFIG_ZMK_RGB_UNDERGLOW_EXT_POWER=y` makes `RGB_TOG` and friends call `ext_power_disable()`, which cuts the rail and takes the OLED with it. Set:
+
+```
+CONFIG_ZMK_RGB_UNDERGLOW_EXT_POWER=n
+```
+
+…so the underglow toggle just clocks zeros to the LEDs (visually off, ~1 mA standby per chip) while the OLED stays alive. The `&ext_power EP_OFF` / `EP_ON` keymap bindings still work for manually cutting the rail, but they will also kill the OLED.
+
+### Gotcha: ghost LEDs when the driver is disabled
+
+Setting `CONFIG_ZMK_RGB_UNDERGLOW=n` doesn't physically power down the LEDs (their VCC is on the always-on rail). Instead it stops the SPI3 driver from initializing, leaving the data pin (P0.06) in a hi-Z reset state. Noise on the floating line latches random bits into the **first stages of the chain**, so a few LEDs near the chain start (right-hand thumb area) appear stuck on a random color.
+
+For a truly off look, keep the driver enabled and use `ON_START=n` (or `BRT_START=0`) — the driver will actively clock zeros down the chain on boot.
+
 ## OLED Display (left half only)
 
 The left half runs a custom LVGL status screen (`config/custom_status_screen.c`). The right half uses ZMK's built-in screen (`config/corne_right.conf`).
