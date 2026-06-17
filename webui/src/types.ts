@@ -36,3 +36,17 @@ export type ConfigDiff = {
   before: string;
   after: string;
 };
+
+export type OLEDConstants = {
+  loveTimeoutMs: number;
+  fastWpm: number;
+  loveText: string;
+  vampireFrames: {
+    idle: string;
+    left: string;
+    right: string;
+    fast: string;
+  };
+};
+
+export type OLEDPayload = OLEDConstants & { raw: string };

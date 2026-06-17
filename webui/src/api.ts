@@ -1,4 +1,12 @@
-import type { ConfigDiff, ConfigPayload, DocContent, DocSummary, RGBConfig } from './types';
+import type {
+  ConfigDiff,
+  ConfigPayload,
+  DocContent,
+  DocSummary,
+  OLEDConstants,
+  OLEDPayload,
+  RGBConfig,
+} from './types';
 
 async function getJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
@@ -35,4 +43,7 @@ export const api = {
   getConfig: () => getJson<ConfigPayload>('/api/config'),
   saveConfig: (rgb: RGBConfig) => sendJson<ConfigPayload>('/api/config', 'PUT', { rgb }),
   previewConfig: (rgb: RGBConfig) => sendJson<ConfigDiff>('/api/config/preview', 'POST', { rgb }),
+  getOLED: () => getJson<OLEDPayload>('/api/oled'),
+  saveOLED: (c: OLEDConstants) => sendJson<OLEDPayload>('/api/oled', 'PUT', c),
+  previewOLED: (c: OLEDConstants) => sendJson<ConfigDiff>('/api/oled/preview', 'POST', c),
 };

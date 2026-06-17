@@ -46,4 +46,19 @@ export const HELP: Record<string, HelpEntry> = {
     long: 'Default is 10. Set lower (e.g. 5) for finer control. If you start at brightness 5 and step is 10, one BR- press will clamp to 0.',
     learnMoreSlug: 'rgb',
   },
+  'oled.loveTimeoutMs': {
+    short: 'How long without activity before the love message appears (milliseconds).',
+    long: 'After this many ms with no key presses, the OLED switches to the full-screen idle message. Any keypress brings the normal display back. 20000 = 20 seconds.',
+    learnMoreSlug: 'oled',
+  },
+  'oled.fastWpm': {
+    short: 'WPM threshold for the fast vampire frame.',
+    long: 'Once your typing speed crosses this words-per-minute number, the vampire switches to its "going fast" pose. Lower values trigger it sooner.',
+    learnMoreSlug: 'oled',
+  },
+  'oled.loveText': {
+    short: 'The full-screen idle message.',
+    long: 'Shown after the idle timeout. Newlines are allowed. Long text may not fit on the 128×32 display.',
+    learnMoreSlug: 'oled',
+  },
 };
