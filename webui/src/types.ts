@@ -50,3 +50,29 @@ export type OLEDConstants = {
 };
 
 export type OLEDPayload = OLEDConstants & { raw: string };
+
+export type Binding = {
+  behavior: string;
+  args: string[];
+  raw: string;
+};
+
+export type Layer = {
+  name: string;
+  displayName: string;
+  bindings: Binding[];
+};
+
+export type Combo = {
+  name: string;
+  timeoutMs: number;
+  keyPositions: number[];
+  bindings: Binding[];
+  layers?: number[];
+};
+
+export type Keymap = {
+  layers: Layer[];
+  combos: Combo[];
+  raw: string;
+};

@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { DocsViewer } from './components/DocsViewer';
-import { Placeholder } from './components/Placeholder';
 import { BuildPanel } from './components/BuildPanel';
 import { RGBEditor } from './components/RGBEditor';
 import { OLEDEditor } from './components/OLEDEditor';
 import { VampireFrameEditor } from './components/VampireFrameEditor';
+import { KeymapViewer } from './components/KeymapViewer';
 
 export function App() {
   return (
@@ -17,7 +17,7 @@ export function App() {
           <Route path="rgb" element={<RGBEditor />} />
           <Route path="oled" element={<OLEDEditor />} />
           <Route path="vampire" element={<VampireFrameEditor />} />
-          <Route path="keymap" element={<Placeholder title="Keymap Viewer — coming in Phase 5" />} />
+          <Route path="keymap" element={<KeymapViewer />} />
           <Route path="build" element={<BuildPanel />} />
           <Route
             path="*"

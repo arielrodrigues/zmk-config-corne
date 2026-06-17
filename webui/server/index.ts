@@ -5,6 +5,7 @@ import { docsRouter } from './routes/docs.js';
 import { buildRouter } from './routes/build.js';
 import { configRouter } from './routes/config.js';
 import { oledRouter } from './routes/oled.js';
+import { keymapRouter } from './routes/keymap.js';
 import { REPO_ROOT } from './repoRoot.js';
 
 const app = express();
@@ -17,6 +18,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/docs', docsRouter);
 app.use('/api/config', configRouter);
 app.use('/api/oled', oledRouter);
+app.use('/api/keymap', keymapRouter);
 app.use('/api', buildRouter);
 
 const PORT = 5174;
